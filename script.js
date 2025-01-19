@@ -2,7 +2,6 @@ let wordList = [];
 let remainingWords = [];
 let currentGuess = "";
 
-// Load words from the word list file
 function loadWords() {
   return fetch("wordle_possibles.txt")
     .then(response => {
@@ -22,70 +21,63 @@ function loadWords() {
     });
 }
 
-// Get feedback based on the guess and the actual word
 function getFeedback(guess, actual) {
-  let feedback = Array(5).fill("x"); // Start with all letters as gray
-  let actualLetterCount = {}; // Count occurrences of each letter in the actual word
+  let feedback = Array(5).fill("x");
+  let actualLetterCount = {};
 
-  // First pass: Check for greens
   for (let i = 0; i < 5; i++) {
     if (guess[i] === actual[i]) {
-      feedback[i] = "g"; // Green
+      feedback[i] = "g";
     } else {
-      actualLetterCount[actual[i]] = (actualLetterCount[actual[i]] || 0) + 1; // Count letters for yellow check
+      actualLetterCount[actual[i]] = (actualLetterCount[actual[i]] || 0) + 1;
     }
   }
 
-  // Second pass: Check for yellows
   for (let i = 0; i < 5; i++) {
     if (feedback[i] === "x" && actualLetterCount[guess[i]]) {
-      feedback[i] = "y"; // Yellow
-      actualLetterCount[guess[i]]--; // Decrease count for yellow letters
+      feedback[i] = "y";
+      actualLetterCount[guess[i]]--;
     }
   }
 
   return feedback.join('');
 }
 
-// Filter remaining words based on the guess and feedback
 function filterWords(guess, feedback, words) {
   return words.filter(word => {
     const actualLetterCount = {};
-    const greenLetters = new Set(); // To track letters that are green
+    const greenLetters = new Set();
 
-    // First pass: Check for greens and count letters for yellows
     for (let i = 0; i < 5; i++) {
       const letter = guess[i];
       if (feedback[i] === "g") {
-        if (word[i] !== letter) return false; // Green check
-        greenLetters.add(letter); // Track green letters
+        if (word[i] !== letter) return false;
+        greenLetters.add(letter); 
       } else {
-        actualLetterCount[letter] = (actualLetterCount[letter] || 0) + 1; // Count letters for yellow check
+        actualLetterCount[letter] = (actualLetterCount[letter] || 0) + 1;
       }
     }
 
-    // Second pass: Check for yellows and grays
     for (let i = 0; i < 5; i++) {
       const letter = guess[i];
       if (feedback[i] === "y") {
         if (word[i] === letter || (word.split(letter).length - 1 < actualLetterCount[letter])) {
-          return false; // Yellow check
+          return false;
         }
       } else if (feedback[i] === "x") {
         if (greenLetters.has(letter)) {
-          continue; // Skip gray check for letters that are green
+          continue;
         }
         if (word.includes(letter)) {
-          return false; // Gray check
+          return false;
         }
       }
     }
 
-    return true; // If all checks pass, the word is valid
+    return true;
   });
 }
 
-// Calculate information gain for a guess
 function calculateInformationGain(guess, remainingWords) {
   const feedbackCounts = {};
   remainingWords.forEach(word => {
@@ -102,7 +94,6 @@ function calculateInformationGain(guess, remainingWords) {
   return infoGain;
 }
 
-// Suggest the best guess based on information gain
 function suggestBestGuess(remainingWords) {
   let bestGuess = "";
   let maxInfoGain = -Infinity;
@@ -118,9 +109,8 @@ function suggestBestGuess(remainingWords) {
   return bestGuess;
 }
 
-// Initialize the game and set up event listeners
 function initializeGame() {
-  currentGuess = "crane"; // Default initial guess
+  currentGuess = "crane";
   document.getElementById("suggested-word").innerText = currentGuess;
 
   document.getElementById("next-guess-button").addEventListener("click", () => {
@@ -150,5 +140,4 @@ function initializeGame() {
   });
 }
 
-// Load words and initialize the game
 loadWords();
