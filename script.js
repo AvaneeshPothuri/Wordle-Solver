@@ -110,7 +110,7 @@ function suggestBestGuess(remainingWords) {
 }
 
 function initializeGame() {
-  currentGuess = "crane";
+  currentGuess = suggestBestGuess(remainingWords);
   document.getElementById("suggested-word").innerText = currentGuess;
 
   document.getElementById("next-guess-button").addEventListener("click", () => {
